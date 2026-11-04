@@ -3,29 +3,144 @@
    Lo más fácil es editar esto desde editor.html */
 window.CONTENIDO = {
   "historia": [
-    { "foto": 14, "polaroid": "nosotros",         "titulo": "Tú *y* yo",                 "frase": "Mi foto favorita del mundo es cualquiera en la que salgas tú." },
-    { "foto": 2,  "polaroid": "¡hola!",           "titulo": "Entre la *multitud*",       "frase": "Puede haber mil personas: siempre te encuentro a ti." },
-    { "foto": 34, "polaroid": "Praia do Amor",    "titulo": "La Praia do *Amor*",        "frase": "Hasta el letrero sabía lo que estaba pasando." },
-    { "foto": 3,  "polaroid": "la cordillera",    "titulo": "Arriba en la *nieve*",      "frase": "Las mejores vistas… y no hablo de las montañas." },
-    { "foto": 24, "polaroid": "modo ochentero",   "titulo": "Versión *ochentera*",       "frase": "Tú con ese chaleco, yo con esa chaqueta: icónicos." },
-    { "foto": 23, "polaroid": "¡una lagartija!",  "titulo": "Tu lado *aventurero*",      "frase": "La única persona que conozco que celebra así encontrar una lagartija." },
-    { "foto": 5,  "polaroid": "Barcelona",        "titulo": "Bajo los arcos de *Gaudí*", "frase": "Explorar el mundo es mejor de tu mano." },
-    { "foto": 6,  "polaroid": "Japón",            "titulo": "Tú, *diva* en Japón",       "frase": "Tú posando como estrella, yo sudando como turista." },
-    { "foto": 16, "polaroid": "un beso",          "titulo": "Un beso junto al *canal*",  "frase": "De esas cosas que no se planean y se recuerdan para siempre." },
-    { "foto": 41, "polaroid": "entre montañas",   "titulo": "Entre *montañas*",          "frase": "Una cerveza, sol y tú: la cumbre perfecta." },
-    { "foto": 38, "polaroid": "de gala",          "titulo": "De *gala*",                 "frase": "Tú con ese vestido. No tengo más comentarios." },
-    { "foto": 36, "polaroid": "disfrazados",      "titulo": "Y también *disfrazados*",   "frase": "Contigo hasta el carrete más raro es el mejor plan." },
-    { "foto": 28, "polaroid": "atardecer",        "titulo": "Cuando se pone el *sol*",   "frase": "Los atardeceres son más lindos si los veo contigo." },
-    { "foto": 7,  "polaroid": "ceremonia del té", "titulo": "Y un poco de *calma*",      "frase": "Hasta en silencio, contigo todo se siente en su lugar." }
+    {
+      "foto": 2,
+      "polaroid": "Conce",
+      "titulo": "Todo comienza en *REC*",
+      "frase": "El primer joteo correspondido"
+    },
+    {
+      "foto": 8,
+      "polaroid": "El primer beso",
+      "titulo": "El primer *beso*",
+      "frase": "Cuando bailamos toda la noche y me diste un beso"
+    },
+    {
+      "foto": 41,
+      "polaroid": "Sierra Velluda",
+      "titulo": "Cuando te lleve a *san lorenzo*",
+      "frase": "Y pasamos a buscar leña"
+    },
+    {
+      "foto": 5,
+      "polaroid": "Parque Gaudí",
+      "titulo": "Cuando no aguantaste y me fuiste a ver a *Barcelona*",
+      "frase": "Ahi nos pusimos a pololear"
+    },
+    {
+      "foto": 31,
+      "polaroid": "Santiago",
+      "titulo": "Cuando me llevaste al *hotel*",
+      "frase": "Ese si que fue buen canje"
+    },
+    {
+      "foto": 7,
+      "polaroid": "Kyoto",
+      "titulo": "Cuando me invitaste a *japón* poco después de empezar a salir",
+      "frase": "Hasta en silencio, contigo todo se siente en su lugar."
+    },
+    {
+      "foto": 17,
+      "polaroid": "Ferris Wheel",
+      "titulo": "Llegamos hasta *Osaka*",
+      "frase": "Tomando cerveza en la ferris wheel"
+    },
+    {
+      "foto": 25,
+      "polaroid": "Sao Paulo",
+      "titulo": "Viajes a *Sao Paulo*",
+      "frase": "Un poquito de fiesta"
+    },
+    {
+      "foto": 29,
+      "polaroid": "Sur del mundo",
+      "titulo": "Primer viaje con los *niños*",
+      "frase": "El primer viaje juntos"
+    },
+    {
+      "foto": 23,
+      "polaroid": "San Lorenzo",
+      "titulo": "Cazando *lagartijas*",
+      "frase": "Con casi funa"
+    },
+    {
+      "foto": 34,
+      "polaroid": "Praia do Amor",
+      "titulo": "La Praia do *Amor*",
+      "frase": "Hasta el letrero sabía lo que estaba pasando."
+    },
+    {
+      "foto": 42,
+      "polaroid": "Valle Sagrado",
+      "titulo": "Viaje a *Machu Pichu*",
+      "frase": "Que lindo viajar con los niños"
+    },
+    {
+      "foto": 44,
+      "polaroid": "Manuel Cousiño",
+      "titulo": "Ayer",
+      "frase": "Thinking about completos"
+    },
+    {
+      "foto": 45,
+      "polaroid": "Las Dalias",
+      "titulo": "Hoy",
+      "frase": "Que lindo es despertar contigo"
+    }
   ],
-  "portada": [7, 1, 34, 24, 28, 31, 20, 26, 17, 30, 38, 12],
+  "portada": [
+    1,
+    34,
+    24,
+    28,
+    31,
+    20,
+    26,
+    30,
+    38,
+    12,
+    3,
+    4,
+    6,
+    10,
+    9,
+    16,
+    18,
+    21,
+    27,
+    40,
+    37,
+    32,
+    33,
+    35,
+    13,
+    11
+  ],
   "razones": [
-    { "foto": 3,  "texto": "Tu risa, que se te sale con toda la cara." },
-    { "foto": 23, "texto": "Que te atreves a todo: nieve, bici, kimono, lagartijas." },
-    { "foto": 6,  "texto": "Tu estilo, hasta en un templo con 35 grados." },
-    { "foto": 34, "texto": "Que conviertes cualquier viaje en una aventura." },
-    { "foto": 36, "texto": "Que te disfrazas conmigo sin preguntar mucho." },
-    { "foto": 37, "texto": "Que una comida en la casa contigo ya es una cita." }
+    {
+      "foto": 23,
+      "texto": "Por lo acamapada"
+    },
+    {
+      "foto": 46,
+      "texto": "Por lo inteligente"
+    },
+    {
+      "foto": 19,
+      "texto": "Porque te encanta la comida como a mi"
+    },
+    {
+      "foto": 15,
+      "texto": "Por lo escorpiona"
+    },
+    {
+      "foto": 36,
+      "texto": "Que me enseñes de cultura pop"
+    },
+    {
+      "foto": 38,
+      "texto": "Por acompañarme en"
+    }
   ]
 };
 

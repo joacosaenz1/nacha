@@ -89,6 +89,8 @@
   .caption .count{font-family:var(--sans);font-size:13px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
   .caption .place{font-family:var(--serif);font-size:clamp(38px,5.4vw,76px);font-weight:300;line-height:1;margin:14px 0 18px;letter-spacing:-.02em}
   .caption .place em{font-style:italic;color:var(--red)}
+  .caption .place.l{font-size:clamp(32px,4.3vw,60px)}
+  .caption .place.xl{font-size:clamp(28px,3.5vw,48px);line-height:1.05}
   .caption .line{font-family:var(--hand);font-size:clamp(26px,2.8vw,36px);line-height:1.15;max-width:22ch;color:#3a302b}
   .caption > div{transition:opacity .45s, transform .45s}
   .caption.swap > div{opacity:0;transform:translateY(12px)}
@@ -201,6 +203,8 @@
     .caption{min-height:150px;order:2;z-index:2;margin:0 -7vw;padding:18px 7vw 0;
       background:linear-gradient(to bottom,rgba(244,237,228,0),var(--paper) 22px)}
     .caption .place{margin:6px 0 8px}
+    .caption .place.l{font-size:32px}
+    .caption .place.xl{font-size:27px}
     .progress{left:7vw;bottom:3.5svh;z-index:3}
     .stage{padding-top:30vh}
     .cards{grid-template-columns:1fr 1fr;gap:10px;margin-top:32px}
@@ -418,7 +422,7 @@ function layoutRing(){
 layoutRing(); addEventListener("resize", layoutRing);
 (function spin(){
   if(!dragging){ angle += vel; vel += (.12 - vel)*.02; }
-  const tilt = -6 + Math.sin(angle/40)*2;
+  const tilt = (-6 + Math.sin(angle/40)*2) * Math.min(1, 380/R);
   ring.style.transform = `translateZ(${-R}px) rotateX(${tilt}deg) rotateY(${angle}deg)`;
   requestAnimationFrame(spin);
 })();
@@ -450,7 +454,8 @@ function setCaption(i){
   caption.classList.add("swap");
   setTimeout(()=>{
     document.getElementById("count").textContent = String(i+1).padStart(2,"0")+" / "+String(N).padStart(2,"0");
-    document.getElementById("place").innerHTML = PHOTOS[i].place;
+    const pl = document.getElementById("place"), len = PHOTOS[i].place.replace(/<[^>]+>/g,"").length;
+    pl.innerHTML = PHOTOS[i].place; pl.className = "place" + (len > 40 ? " xl" : len > 24 ? " l" : "");
     document.getElementById("line").textContent = PHOTOS[i].line;
     caption.classList.remove("swap");
   }, cur===0 && !caption.dataset.init ? 0 : 220);
