@@ -133,6 +133,40 @@
   .again{margin-top:34px;background:var(--ink);color:var(--paper)}
   footer{padding:0 0 40px;text-align:center;color:var(--muted);font-size:13px}
 
+  /* ---------- Regalo ---------- */
+  #gift{position:relative;overflow:hidden;padding:6vh 6vw 14vh;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .bubbles{position:absolute;inset:0;pointer-events:none;z-index:0}
+  .bubbles span{position:absolute;bottom:-40px;border-radius:50%;border:1.5px solid rgba(59,91,165,.45);
+    background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95) 0 12%,rgba(170,205,235,.25) 40%,rgba(170,205,235,.08));
+    animation:bubble linear forwards}
+  @keyframes bubble{0%{transform:translate(0,0)}25%{transform:translate(10px,-25vh)}50%{transform:translate(-8px,-50vh)}75%{transform:translate(12px,-75vh)}100%{transform:translate(0,-105vh);opacity:.2}}
+  #gift > *:not(.bubbles){position:relative;z-index:1}
+  .giftbox{width:190px;height:200px;margin-top:40px;cursor:pointer;-webkit-tap-highlight-color:transparent;animation:wobble 2.6s ease-in-out infinite;transition:height .7s .5s, margin .7s .5s}
+  @keyframes wobble{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-6deg) scale(1.03)}82%{transform:rotate(5deg) scale(1.03)}88%{transform:rotate(-3deg)}94%{transform:rotate(2deg)}}
+  .giftbox .box{position:absolute;bottom:0;left:12px;right:12px;height:136px;border-radius:6px;background:var(--red);
+    background-image:linear-gradient(90deg,transparent calc(50% - 13px),#f2c14e calc(50% - 13px) calc(50% + 13px),transparent calc(50% + 13px));
+    box-shadow:0 26px 40px -24px rgba(27,22,20,.6);transition:transform .6s .3s, opacity .6s .3s}
+  .giftbox .lid{position:absolute;top:22px;left:0;right:0;height:46px;border-radius:6px;background:#b81c25;z-index:2;
+    background-image:linear-gradient(90deg,transparent calc(50% - 15px),#e6b23c calc(50% - 15px) calc(50% + 15px),transparent calc(50% + 15px));
+    transition:transform .9s cubic-bezier(.2,.9,.3,1), opacity .9s}
+  .bow{position:absolute;left:50%;top:-30px;width:0;height:0}
+  .bow i{position:absolute;top:0;width:44px;height:32px;border:9px solid #f2c14e;border-radius:50% 50% 50% 50%/60% 60% 40% 40%}
+  .bow i:first-child{right:-2px;transform:rotate(-20deg)} .bow i:last-child{left:-2px;transform:rotate(20deg)}
+  .gift-hint{font-family:var(--hand);font-size:24px;color:var(--muted);margin-top:14px;transition:opacity .4s}
+  #gift.opened .giftbox{animation:none;height:0;margin-top:0;pointer-events:none}
+  #gift.opened .lid{transform:translate(60px,-220px) rotate(35deg);opacity:0}
+  #gift.opened .box{transform:scale(.6) translateY(40px);opacity:0}
+  #gift.opened .gift-hint{opacity:0;height:0;margin:0}
+  .present{display:none;width:min(92vw,520px);margin-top:30px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 40px 80px -40px rgba(27,22,20,.6)}
+  #gift.opened .present{display:block;animation:pop 1s 1s cubic-bezier(.2,1.4,.4,1) both}
+  @keyframes pop{from{opacity:0;transform:translateY(60px) scale(.85)}to{opacity:1;transform:none}}
+  .present img{width:100%;max-height:52svh;object-fit:contain;background:#fff;padding:18px 18px 0}
+  .present-text{padding:10px clamp(22px,6vw,40px) 30px;text-align:left}
+  .present-text h3{font-family:var(--serif);font-weight:300;font-style:italic;font-size:clamp(28px,6.5vw,40px);color:var(--blue);line-height:1.05;margin-bottom:12px}
+  .present-text p{font-family:var(--hand);font-size:clamp(22px,5.4vw,28px);line-height:1.2;color:#2b2421}
+  .present-text p + p{margin-top:8px}
+  .present-text .sig{font-family:var(--hand);font-size:32px;margin-top:12px}
+
   /* ---------- Lightbox ---------- */
   #lb{position:fixed;inset:0;z-index:70;background:rgba(13,9,7,.92);display:flex;align-items:center;justify-content:center;padding:4vw;opacity:0;pointer-events:none;transition:opacity .3s}
   #lb.on{opacity:1;pointer-events:auto}
@@ -257,6 +291,27 @@
       <div class="sig">Te amo,<br>Joaco ♥</div>
     </div>
     <canvas id="scratchCanvas"></canvas>
+  </div>
+</section>
+
+<!-- 7 · El regalo -->
+<section id="gift">
+  <div class="bubbles" id="bubbles"></div>
+  <div class="kicker">una cosa más…</div>
+  <div class="big">Tu <em>regalo</em></div>
+  <div class="giftbox" id="giftbox" role="button" aria-label="Abrir el regalo">
+    <div class="lid"><div class="bow"><i></i><i></i></div></div>
+    <div class="box"></div>
+  </div>
+  <div class="gift-hint" id="giftHint">toca para abrirlo</div>
+  <div class="present" id="present">
+    <img src="fotos/regalo.jpg" alt="Máquina de agua con gas G.O.2">
+    <div class="present-text">
+      <h3>Una máquina de agua con gas 🫧</h3>
+      <p>Sé que te encanta el agua con gas, más que la normal.</p>
+      <p>La compré hace un par de semanas, pero no había stock… parece que son muy buenas.</p>
+      <div class="sig">Joaco ♥</div>
+    </div>
   </div>
   <button class="btn again" id="again">🕯️ Volver a soplar la vela</button>
 </section>
@@ -491,6 +546,21 @@ function checkReveal(){
 sc.addEventListener("pointerdown", e=>{ scratching = true; sc.setPointerCapture(e.pointerId); scratchAt(e); });
 sc.addEventListener("pointermove", e=>{ if(scratching) scratchAt(e); });
 sc.addEventListener("pointerup", ()=>{ scratching = false; checkReveal(); });
+
+/* ============ 7 · Regalo ============ */
+const gift = document.getElementById("gift"), bubbles = document.getElementById("bubbles");
+function bubble(){
+  const b = document.createElement("span"), size = 8 + Math.random()*30;
+  b.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size}px;animation-duration:${4 + Math.random()*5}s`;
+  bubbles.appendChild(b); b.addEventListener("animationend", ()=>b.remove());
+}
+document.getElementById("giftbox").addEventListener("click", ()=>{
+  if(gift.classList.contains("opened")) return;
+  gift.classList.add("opened");
+  for(let i=0;i<60;i++) setTimeout(bubble, i*40);
+  setTimeout(()=>burst(160, innerWidth/2, innerHeight*.45), 900);
+  setTimeout(()=>{ (function loop(){ bubble(); setTimeout(loop, 380); })(); }, 2600);
+});
 
 document.getElementById("again").addEventListener("click", ()=>{
   blown = false; cake.classList.remove("blown"); flame.style.transform = "";
