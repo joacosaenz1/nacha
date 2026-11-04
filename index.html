@@ -108,7 +108,7 @@
   .big em{font-style:italic}
   .sub{color:var(--muted);font-size:15px}
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;max-width:1080px;margin:48px auto 0}
-  .flip{perspective:1000px;height:270px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .flip{perspective:1000px;height:300px;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .flip .inner{position:relative;width:100%;height:100%;transition:transform .8s cubic-bezier(.3,1.4,.4,1);transform-style:preserve-3d}
   .flip.open .inner{transform:rotateY(180deg)}
   .flip .face{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:22px;overflow:hidden}
@@ -139,6 +139,25 @@
   #lb img{max-height:88svh;max-width:92vw;border:10px solid #fff;border-bottom-width:44px;transform:scale(.9) rotate(-2deg);transition:transform .4s cubic-bezier(.2,1.4,.4,1)}
   #lb.on img{transform:none}
 
+  /* ---------- Muro ---------- */
+  #wall{padding:14vh 0 0;position:relative}
+  .wall-head{text-align:center;padding:0 6vw 5vh}
+  .cols{display:flex;gap:12px;padding:0 12px;height:115svh;overflow:hidden;
+    -webkit-mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 88%,transparent)}
+  .col{flex:1;min-width:0}
+  .track{display:flex;flex-direction:column;gap:12px;animation:drift linear infinite}
+  .cols:hover .track{animation-play-state:paused}
+  @keyframes drift{from{transform:translateY(0)}to{transform:translateY(calc(-50% - 6px))}}
+  .track img{width:100%;height:auto;border-radius:10px;cursor:zoom-in;background:#e8dfd4;aspect-ratio:3/4;object-fit:cover;transition:transform .3s}
+  .track img:hover{transform:scale(1.03)}
+
+  /* ---------- Lightbox: navegación ---------- */
+  .lb-btn{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:0;background:rgba(244,237,228,.15);
+    color:#f4ede4;font-size:32px;line-height:1;cursor:pointer}
+  .lb-btn.prev{left:12px} .lb-btn.next{right:12px}
+  #lb.single .lb-btn{display:none}
+  .lb-n{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#f4ede4;opacity:.6;font-size:13px;letter-spacing:.15em}
+
   @media (max-width:760px){
     .sticky{grid-template-columns:1fr;grid-template-rows:1fr auto;align-items:end;padding:8svh 7vw 9svh;gap:3svh}
     .pile{height:50svh;align-self:center}
@@ -147,6 +166,13 @@
     .caption .place{margin:6px 0 8px}
     .progress{left:7vw;bottom:3.5svh;z-index:3}
     .stage{padding-top:30vh}
+    .cards{grid-template-columns:1fr 1fr;gap:10px;margin-top:32px}
+    .flip{height:240px}
+    .flip .back{font-size:21px;padding:14px}
+    .flip .front .n{font-size:56px}
+    .flip .front small{font-size:18px}
+    .cols{gap:8px;padding:0 8px}
+    .track{gap:8px}
   }
   @media (min-width:761px){
     .mbr{display:none}
@@ -191,7 +217,7 @@
   <div class="sticky">
     <div class="caption" id="caption">
       <div>
-        <div class="count" id="count">01 / 09</div>
+        <div class="count" id="count"></div>
         <div class="place" id="place"></div>
         <div class="line" id="line"></div>
       </div>
@@ -201,7 +227,17 @@
   </div>
 </section>
 
-<!-- 4 · Razones -->
+<!-- 4 · Muro -->
+<section id="wall">
+  <div class="wall-head">
+    <div class="kicker">y esto es solo una parte</div>
+    <div class="big">Todo lo que hemos <em>vivido</em></div>
+    <div class="sub" id="wallCount"></div>
+  </div>
+  <div class="cols" id="cols"></div>
+</section>
+
+<!-- 5 · Razones -->
 <section id="reasons">
   <div class="kicker">toca cada carta</div>
   <div class="big">Algunas razones por las que <em>te amo</em></div>
@@ -209,7 +245,7 @@
   <div class="cards" id="cards"></div>
 </section>
 
-<!-- 5 · Final -->
+<!-- 6 · Final -->
 <section id="finale">
   <div class="kicker">y por último…</div>
   <div class="big">Raspa con el dedo</div>
@@ -226,26 +262,39 @@
 </section>
 <footer>hecho con amor (y un poco de código) por Joaco</footer>
 
-<div id="lb"><img alt=""></div>
+<div id="lb"><img alt=""><button class="lb-btn prev" aria-label="Anterior">‹</button><button class="lb-btn next" aria-label="Siguiente">›</button><div class="lb-n"></div></div>
 
 <script>
 /* ============ Contenido (edita aquí) ============ */
+// Historia: la pila de polaroids (en orden)
 const PHOTOS = [
-  { src:"fotos/espejo.jpg", tag:"nosotros",   place:"Nosotros, <em>de noche</em>",   line:"Una noche cualquiera, que contigo nunca es cualquiera." },
-  { src:"fotos/fiesta.jpg", tag:"¡hola!",     place:"Entre la <em>multitud</em>",    line:"Puede haber mil personas: siempre te encuentro a ti." },
-  { src:"fotos/nieve.jpg",  tag:"la cordillera", place:"Arriba en la <em>nieve</em>", line:"Las mejores vistas… y no hablo de las montañas." },
-  { src:"fotos/bici.jpg",   tag:"en dos ruedas", place:"En <em>bici</em>",           line:"Tú pedaleando en balerinas, con más estilo que yo." },
-  { src:"fotos/gaudi.jpg",  tag:"Barcelona",  place:"Bajo los arcos de <em>Gaudí</em>", line:"Explorar el mundo es mejor de tu mano.", pos:"38% 50%" },
-  { src:"fotos/templo.jpg", tag:"Japón",      place:"Tú, <em>diva</em> en Japón",    line:"Tú posando como estrella, yo sudando como turista." },
-  { src:"fotos/amiga.jpg",  tag:"labial rojo", place:"Con tu <em>gente</em>",        line:"Labial rojo, abrazo apretado y cero dudas." },
-  { src:"fotos/cabana.jpg", tag:"junto al fuego", place:"Junto al <em>fuego</em>",   line:"Vino, amigas y conversa hasta tarde: tu lugar feliz." },
-  { src:"fotos/kimono.jpg", tag:"ceremonia del té", place:"Y un poco de <em>calma</em>", line:"Hasta en silencio, contigo todo se siente en su lugar." },
+  { src:"fotos/n05.jpg",    tag:"nosotros",        place:"Tú <em>y</em> yo",               line:"Mi foto favorita del mundo es cualquiera en la que salgas tú." },
+  { src:"fotos/fiesta.jpg", tag:"¡hola!",          place:"Entre la <em>multitud</em>",     line:"Puede haber mil personas: siempre te encuentro a ti." },
+  { src:"fotos/n25.jpg",    tag:"Praia do Amor",   place:"La Praia do <em>Amor</em>",      line:"Hasta el letrero sabía lo que estaba pasando." },
+  { src:"fotos/nieve.jpg",  tag:"la cordillera",   place:"Arriba en la <em>nieve</em>",    line:"Las mejores vistas… y no hablo de las montañas." },
+  { src:"fotos/n15.jpg",    tag:"modo ochentero",  place:"Versión <em>ochentera</em>",     line:"Tú con ese chaleco, yo con esa chaqueta: icónicos." },
+  { src:"fotos/n14.jpg",    tag:"¡una lagartija!", place:"Tu lado <em>aventurero</em>",    line:"La única persona que conozco que celebra así encontrar una lagartija." },
+  { src:"fotos/gaudi.jpg",  tag:"Barcelona",       place:"Bajo los arcos de <em>Gaudí</em>", line:"Explorar el mundo es mejor de tu mano.", pos:"38% 50%" },
+  { src:"fotos/templo.jpg", tag:"Japón",           place:"Tú, <em>diva</em> en Japón",     line:"Tú posando como estrella, yo sudando como turista." },
+  { src:"fotos/n07.jpg",    tag:"un beso",         place:"Un beso junto al <em>canal</em>", line:"De esas cosas que no se planean y se recuerdan para siempre." },
+  { src:"fotos/n32.jpg",    tag:"entre montañas",  place:"Entre <em>montañas</em>",        line:"Una cerveza, sol y tú: la cumbre perfecta." },
+  { src:"fotos/n29.jpg",    tag:"de gala",         place:"De <em>gala</em>",               line:"Tú con ese vestido. No tengo más comentarios." },
+  { src:"fotos/n27.jpg",    tag:"disfrazados",     place:"Y también <em>disfrazados</em>", line:"Contigo hasta el carrete más raro es el mejor plan." },
+  { src:"fotos/n19.jpg",    tag:"atardecer",       place:"Cuando se pone el <em>sol</em>", line:"Los atardeceres son más lindos si los veo contigo." },
+  { src:"fotos/kimono.jpg", tag:"ceremonia del té", place:"Y un poco de <em>calma</em>",   line:"Hasta en silencio, contigo todo se siente en su lugar." },
 ];
+// Carrusel 3D de la portada
+const RING = ["kimono","espejo","n25","n15","n19","n22","n11","n17","n08","n21","n29","n03"].map(n=>`fotos/t/${n}.jpg`);
+// Muro: todas las fotos
+const ALL = ["espejo","fiesta","nieve","bici","gaudi","templo","kimono","amiga","cabana",
+  ...Array.from({length:34},(_,i)=>"n"+String(i+1).padStart(2,"0"))];
 const REASONS = [
-  { n:"1", text:"Tu risa, que se te sale con toda la cara.", img:"fotos/nieve.jpg" },
-  { n:"2", text:"Que te atreves a todo: nieve, bici, kimono, lo que venga.", img:"fotos/kimono.jpg" },
-  { n:"3", text:"Tu estilo, hasta en un templo con 35 grados.", img:"fotos/templo.jpg" },
-  { n:"4", text:"Que conviertes cualquier viaje en una aventura.", img:"fotos/gaudi.jpg" },
+  { n:"1", text:"Tu risa, que se te sale con toda la cara.", img:"fotos/t/nieve.jpg" },
+  { n:"2", text:"Que te atreves a todo: nieve, bici, kimono, lagartijas.", img:"fotos/t/n14.jpg" },
+  { n:"3", text:"Tu estilo, hasta en un templo con 35 grados.", img:"fotos/t/templo.jpg" },
+  { n:"4", text:"Que conviertes cualquier viaje en una aventura.", img:"fotos/t/n25.jpg" },
+  { n:"5", text:"Que te disfrazas conmigo sin preguntar mucho.", img:"fotos/t/n27.jpg" },
+  { n:"6", text:"Que una comida en la casa contigo ya es una cita.", img:"fotos/t/n28.jpg" },
 ];
 
 /* ============ Confetti ============ */
@@ -319,12 +368,12 @@ title.innerHTML = title.innerHTML.replace("Feliz", [..."Feliz"].map((c,i)=>`<spa
 
 const ring = document.getElementById("ring"), stage = document.getElementById("stage");
 let R, angle = 0, vel = .12, dragging = false, lastX = 0, moved = 0;
-PHOTOS.forEach(p=>{ const d = document.createElement("div"); d.className="card";
-  d.innerHTML = `<img src="${p.src}" alt="" style="object-position:${p.pos||"50% 50%"}">`; d.dataset.src = p.src; ring.appendChild(d); });
+RING.forEach(src=>{ const d = document.createElement("div"); d.className="card";
+  d.innerHTML = `<img src="${src}" alt="">`; d.dataset.src = src.replace("/t/","/"); ring.appendChild(d); });
 function layoutRing(){
   const cw = innerWidth < 760 ? 140 : 190; ring.style.setProperty("--cw", cw+"px");
-  R = Math.round(cw*1.08*PHOTOS.length/(2*Math.PI));
-  [...ring.children].forEach((c,i)=> c.style.transform = `rotateY(${i*360/PHOTOS.length}deg) translateZ(${R}px)`);
+  R = Math.round(cw*1.08*RING.length/(2*Math.PI));
+  [...ring.children].forEach((c,i)=> c.style.transform = `rotateY(${i*360/RING.length}deg) translateZ(${R}px)`);
 }
 layoutRing(); addEventListener("resize", layoutRing);
 (function spin(){
@@ -337,19 +386,19 @@ stage.addEventListener("pointerdown", e=>{ dragging = true; lastX = e.clientX; m
 addEventListener("pointermove", e=>{ if(!dragging) return; const dx = e.clientX-lastX; lastX = e.clientX; moved += Math.abs(dx); angle += dx*.35; vel = dx*.35; });
 addEventListener("pointerup", ()=> dragging = false);
 addEventListener("pointercancel", ()=> dragging = false);
-ring.addEventListener("click", e=>{ const c = e.target.closest(".card"); if(c && moved < 6) openLb(c.dataset.src); });
+ring.addEventListener("click", e=>{ const c = e.target.closest(".card"); if(c && moved < 6) openLb(RING.map(r=>r.replace("/t/","/")), RING.indexOf(c.dataset.src.replace("fotos/","fotos/t/"))); });
 
 /* ============ 3 · Historia: pila de polaroids ============ */
 const story = document.getElementById("story"), pile = document.getElementById("pile"), prog = document.getElementById("progress");
 const caption = document.getElementById("caption");
 const N = PHOTOS.length;
-story.style.height = `calc(${N} * 85svh + 100svh)`;
+story.style.height = `calc(${N} * 70svh + 100svh)`;
 const seeds = PHOTOS.map((_,i)=>({ rot:(i%2?1:-1)*(2+Math.random()*7), x:(Math.random()-.5)*16, y:(Math.random()-.5)*8,
   fromX:(i%2?1:-1)*(40+Math.random()*30), fromRot:(i%2?1:-1)*(25+Math.random()*25) }));
 const pols = PHOTOS.map((p,i)=>{
   const d = document.createElement("div"); d.className = "pol";
   d.innerHTML = `<img src="${p.src}" alt="" loading="lazy" style="object-position:${p.pos||"50% 50%"}"><b>${p.tag}</b>`;
-  d.addEventListener("click", ()=>openLb(p.src));
+  d.addEventListener("click", ()=>openLb(PHOTOS.map(q=>q.src), i));
   pile.appendChild(d);
   const dot = document.createElement("i"); prog.appendChild(dot);
   return d;
@@ -381,7 +430,27 @@ function onScroll(){
 }
 addEventListener("scroll", onScroll, {passive:true}); addEventListener("resize", onScroll); onScroll();
 
-/* ============ 4 · Razones ============ */
+/* ============ 4 · Muro ============ */
+const cols = document.getElementById("cols"), ALLF = ALL.map(n=>`fotos/${n}.jpg`);
+document.getElementById("wallCount").textContent = `${ALL.length} fotos y contando · toca cualquiera`;
+const shuffled = ALLF.map((src,i)=>({src,i,k:Math.sin(i*99.7)})).sort((a,b)=>a.k-b.k);
+function buildWall(){
+  const nc = innerWidth < 760 ? 3 : innerWidth < 1200 ? 4 : 5;
+  if(cols.dataset.nc == nc) return; cols.dataset.nc = nc; cols.innerHTML = "";
+  for(let c=0;c<nc;c++){
+    const items = shuffled.filter((_,k)=>k%nc===c);
+    const col = document.createElement("div"); col.className = "col";
+    const track = document.createElement("div"); track.className = "track";
+    track.style.animationDuration = (items.length*6 + c*7)+"s";
+    if(c%2) track.style.animationDirection = "reverse";
+    track.innerHTML = [...items,...items].map(it=>`<img src="${it.src.replace("fotos/","fotos/t/")}" data-i="${it.i}" alt="" loading="lazy">`).join("");
+    col.appendChild(track); cols.appendChild(col);
+  }
+}
+buildWall(); addEventListener("resize", buildWall);
+cols.addEventListener("click", e=>{ const im = e.target.closest("img"); if(im) openLb(ALLF, +im.dataset.i); });
+
+/* ============ 5 · Razones ============ */
 const cards = document.getElementById("cards");
 REASONS.forEach(r=>{
   const f = document.createElement("div"); f.className = "flip";
@@ -432,9 +501,21 @@ document.getElementById("again").addEventListener("click", ()=>{
 });
 
 /* ============ Lightbox ============ */
-const lb = document.getElementById("lb");
-function openLb(src){ lb.querySelector("img").src = src; lb.classList.add("on"); }
-lb.addEventListener("click", ()=>lb.classList.remove("on"));
+const lb = document.getElementById("lb"), lbImg = lb.querySelector("img");
+let lbList = [], lbI = 0, tx = null;
+function openLb(list, i){ if(typeof list === "string"){ list = [list]; i = 0; } lbList = list; lbI = Math.max(0,i); showLb(); lb.classList.add("on"); }
+function showLb(){ lbImg.src = lbList[lbI]; lb.querySelector(".lb-n").textContent = lbList.length > 1 ? `${lbI+1} / ${lbList.length}` : ""; lb.classList.toggle("single", lbList.length < 2); }
+function stepLb(d){ lbI = (lbI + d + lbList.length) % lbList.length; showLb(); }
+lb.addEventListener("click", e=>{
+  if(e.target.closest(".prev")) return stepLb(-1);
+  if(e.target.closest(".next")) return stepLb(1);
+  lb.classList.remove("on");
+});
+lb.addEventListener("touchstart", e=>{ tx = e.touches[0].clientX; }, {passive:true});
+lb.addEventListener("touchend", e=>{ if(tx===null) return; const dx = e.changedTouches[0].clientX - tx; tx = null;
+  if(Math.abs(dx) > 50){ e.preventDefault(); stepLb(dx < 0 ? 1 : -1); } });
+addEventListener("keydown", e=>{ if(!lb.classList.contains("on")) return;
+  if(e.key==="ArrowRight") stepLb(1); else if(e.key==="ArrowLeft") stepLb(-1); else if(e.key==="Escape") lb.classList.remove("on"); });
 </script>
 </body>
 </html>
