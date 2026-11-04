@@ -49,6 +49,13 @@
   .tools button:hover{border-color:var(--ink)}
   .tools button:disabled{opacity:.3;cursor:default}
   .tools .del:hover{border-color:var(--red);color:var(--red)}
+  .ins{display:flex;align-items:center;width:100%;height:30px;margin:-6px 0;color:var(--muted);font-size:13px;font-weight:500;opacity:.55;transition:opacity .15s,color .15s}
+  .ins::before,.ins::after{content:"";flex:1;height:0;border-top:2px dashed transparent;transition:border-color .15s}
+  .ins span{padding:3px 12px;border-radius:999px;transition:background .15s,color .15s}
+  .ins:hover,.ins:focus-visible{opacity:1;color:var(--red)}
+  .ins:hover::before,.ins:hover::after{border-color:rgba(208,33,43,.35)}
+  .ins:hover span{background:var(--red);color:#fff}
+  #listH > .ins:first-child, #listR > .ins:first-child{margin-top:-10px}
   .add{width:100%;padding:16px;border:2px dashed var(--line);border-radius:16px;color:var(--muted);font-weight:500}
   .add:hover{border-color:var(--red);color:var(--red)}
 
@@ -200,6 +207,7 @@ function grow(t){ t.style.height = "auto"; t.style.height = (t.scrollHeight + 2)
 function renderList(kind, flash){
   const spec = SPEC[kind], box = document.getElementById(spec.el), arr = D[kind];
   box.innerHTML = arr.map((it,i)=>`
+    <button class="ins" data-ins="${i}"><span>+ agregar ${kind==="historia"?"momento":"razón"} aquí</span></button>
     <div class="item${flash===i?" flash":""}" data-i="${i}">
       <div class="num">${i+1}</div>
       <div class="thumb" data-pick="${i}"><img src="${src(it.foto)}" alt=""><span>foto ${it.foto} · cambiar</span></div>
@@ -229,6 +237,8 @@ for(const kind of Object.keys(SPEC)){
     save();
   });
   box.addEventListener("click", e=>{
+    const ins = e.target.closest("[data-ins]");
+    if(ins){ const at = +ins.dataset.ins; return addAt(kind, at); }
     const item = e.target.closest(".item"); if(!item) return; const i = +item.dataset.i, arr = D[kind];
     if(e.target.closest("[data-pick]")) return openPicker(arr[i].foto, n=>{ arr[i].foto = n; save(); renderList(kind, i); });
     const mv = e.target.closest("[data-move]");
@@ -240,14 +250,14 @@ for(const kind of Object.keys(SPEC)){
     }
   });
 }
-document.querySelectorAll("[data-add]").forEach(b=> b.addEventListener("click", ()=>{
-  const kind = b.dataset.add;
+function addAt(kind, at){
   openPicker(null, n=>{
-    D[kind].push({...SPEC[kind].blank, foto:n}); save(); renderList(kind, D[kind].length-1);
-    const last = document.getElementById(SPEC[kind].el).lastElementChild;
-    last.scrollIntoView({behavior:"smooth", block:"center"}); last.querySelector("input,textarea").focus({preventScroll:true});
+    D[kind].splice(at, 0, {...SPEC[kind].blank, foto:n}); save(); renderList(kind, at);
+    const el = document.getElementById(SPEC[kind].el).querySelector(`.item[data-i="${at}"]`);
+    el.scrollIntoView({behavior:"smooth", block:"center"}); el.querySelector("input,textarea").focus({preventScroll:true});
   });
-}));
+}
+document.querySelectorAll("[data-add]").forEach(b=> b.addEventListener("click", ()=> addAt(b.dataset.add, D[b.dataset.add].length)));
 
 /* ---------- Portada ---------- */
 const gridP = document.getElementById("gridP");
@@ -281,7 +291,7 @@ addEventListener("keydown", e=>{ if(e.key==="Escape") closeModals(); });
 function clean(){ // quita espacios sobrantes y momentos vacíos
   const t = s => String(s??"").trim();
   return {
-    historia: D.historia.map(m=>({foto:m.foto, polaroid:t(m.polaroid), titulo:t(m.titulo), frase:t(m.frase)})).filter(m=>m.titulo||m.frase||m.polaroid),
+    historia: D.historia.map(m=>({foto:m.foto, polaroid:t(m.polaroid), titulo:t(m.titulo), frase:t(m.frase)})),
     portada: D.portada.slice(),
     razones: D.razones.map(r=>({foto:r.foto, texto:t(r.texto)})).filter(r=>r.texto),
   };
