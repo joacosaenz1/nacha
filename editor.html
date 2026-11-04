@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Editor · Cumple Nacha</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f4ede4;--card:#fffaf3;--ink:#1b1614;--red:#d0212b;--blue:#3b5ba5;--muted:#7a6e66;--line:#e4d9cc;
+    --serif:"Fraunces",Georgia,serif;--hand:"Caveat",cursive;--sans:"DM Sans",system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font:15px/1.4 var(--sans);padding-bottom:110px}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  input,textarea{font:inherit;color:inherit;width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;outline:none}
+  input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,91,165,.15)}
+  textarea{resize:none;min-height:44px;overflow:hidden}
+
+  header{position:sticky;top:0;z-index:10;background:rgba(244,237,228,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .top{max-width:860px;margin:0 auto;padding:14px 18px 0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .top h1{font:300 26px var(--serif)} .top h1 em{color:var(--red)}
+  .saved{font-size:12px;color:var(--muted);margin-left:auto}
+  .tabs{max-width:860px;margin:0 auto;padding:10px 18px 0;display:flex;gap:4px}
+  .tab{padding:9px 14px;border-radius:10px 10px 0 0;color:var(--muted);font-weight:500;border-bottom:3px solid transparent}
+  .tab.on{color:var(--ink);border-bottom-color:var(--red)}
+  .tab small{font-weight:400;color:var(--muted)}
+
+  main{max-width:860px;margin:0 auto;padding:20px 18px}
+  .help{color:var(--muted);font-size:14px;margin-bottom:16px}
+  .help b{color:var(--ink);font-weight:500}
+  .panel{display:none} .panel.on{display:block}
+
+  .item{display:grid;grid-template-columns:auto 96px 1fr auto;gap:14px;align-items:start;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:14px;margin-bottom:12px;transition:transform .25s, box-shadow .25s}
+  .item.flash{box-shadow:0 0 0 3px rgba(208,33,43,.35)}
+  .num{font:300 italic 30px var(--serif);color:var(--red);width:30px;text-align:center;line-height:1.1}
+  .thumb{position:relative;width:96px;aspect-ratio:3/4;border-radius:8px;overflow:hidden;background:#ddd;cursor:pointer}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .thumb span{position:absolute;inset:auto 0 0 0;background:rgba(27,22,20,.7);color:#fff;font-size:11px;text-align:center;padding:4px 2px}
+  .thumb:hover span{background:var(--red)}
+  .fields{display:grid;gap:8px;min-width:0}
+  .field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .field label i{text-transform:none;letter-spacing:0;font-style:normal;opacity:.8}
+  .render{font:300 22px/1.1 var(--serif);margin-top:5px;min-height:24px;overflow-wrap:anywhere}
+  .render em{font-style:italic;color:var(--red)}
+  .tools{display:flex;flex-direction:column;gap:4px}
+  .tools button{width:34px;height:34px;border-radius:9px;background:#fff;border:1px solid var(--line);font-size:16px;line-height:1}
+  .tools button:hover{border-color:var(--ink)}
+  .tools button:disabled{opacity:.3;cursor:default}
+  .tools .del:hover{border-color:var(--red);color:var(--red)}
+  .add{width:100%;padding:16px;border:2px dashed var(--line);border-radius:16px;color:var(--muted);font-weight:500}
+  .add:hover{border-color:var(--red);color:var(--red)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+  .pick{position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;cursor:pointer;background:#ddd;outline:3px solid transparent;outline-offset:-3px;transition:outline-color .15s, transform .15s}
+  .pick img{width:100%;height:100%;object-fit:cover;transition:opacity .2s}
+  .pick .n{position:absolute;top:6px;left:6px;background:rgba(27,22,20,.7);color:#fff;font-size:11px;border-radius:6px;padding:1px 6px}
+  .pick .order{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;font-weight:700;
+    display:none;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+  .pick.sel{outline-color:var(--red)} .pick.sel .order{display:flex}
+  #portada .grid.has .pick:not(.sel) img{opacity:.55}
+  .pick:active{transform:scale(.97)}
+  .count-line{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .pill{background:var(--ink);color:var(--paper);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:500}
+  .pill.warn{background:var(--red)}
+  .link{color:var(--blue);text-decoration:underline;text-underline-offset:3px;font-size:14px}
+
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--ink);padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+  .bar-in{max-width:860px;margin:0 auto;display:flex;gap:10px;align-items:center}
+  .btn{border-radius:999px;padding:12px 20px;font-weight:500;white-space:nowrap}
+  .btn.light{background:var(--paper);color:var(--ink)}
+  .btn.red{background:var(--red);color:#fff}
+  .btn.ghost{color:#cbbfb3;padding:12px 6px;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+  .bar .spacer{flex:1}
+
+  .modal{position:fixed;inset:0;z-index:30;background:rgba(13,9,7,.6);display:none;align-items:flex-end;justify-content:center}
+  .modal.on{display:flex}
+  .sheet{background:var(--paper);width:min(860px,100%);max-height:86svh;border-radius:20px 20px 0 0;display:flex;flex-direction:column}
+  .sheet-head{display:flex;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .sheet-head h2{font:300 22px var(--serif);flex:1}
+  .sheet-head button{font-size:26px;width:36px;height:36px;line-height:1}
+  .sheet-body{overflow:auto;padding:16px 18px 24px}
+  .pick.cur{outline-color:var(--blue)}
+  #out{width:100%;height:180px;font:12px/1.4 ui-monospace,monospace;margin-top:12px}
+  .toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:var(--blue);color:#fff;padding:12px 18px;border-radius:12px;
+    opacity:0;pointer-events:none;transition:.3s;z-index:40;max-width:90vw;text-align:center;font-weight:500}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:640px){
+    .item{grid-template-columns:76px 1fr auto;gap:10px;padding:12px}
+    .num{display:none}
+    .thumb{width:76px}
+    .tools{flex-direction:column}
+    .tools button{width:32px;height:32px}
+    .grid{grid-template-columns:repeat(3,1fr);gap:8px}
+    .btn{padding:11px 14px;font-size:14px}
+    .bar .ghost{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><h1>Editor · cumple <em>Nacha</em></h1><span class="saved" id="saved">Los cambios se guardan solos en este navegador</span></div>
+  <nav class="tabs">
+    <button class="tab on" data-tab="historia">Historia <small id="cH"></small></button>
+    <button class="tab" data-tab="portada">Portada <small id="cP"></small></button>
+    <button class="tab" data-tab="razones">Razones <small id="cR"></small></button>
+  </nav>
+</header>
+
+<main>
+  <section class="panel on" id="historia">
+    <p class="help">Los momentos que caen como polaroids al bajar. <b>Toca la foto para cambiarla.</b> En el título, la palabra entre <b>*asteriscos*</b> sale en rojo.</p>
+    <div id="listH"></div>
+    <button class="add" data-add="historia">+ Agregar momento</button>
+  </section>
+
+  <section class="panel" id="portada">
+    <p class="help">Las fotos del carrusel 3D que gira bajo “Feliz cumple, Nacha”. <b>Toca para elegir o quitar</b>; el número rojo es el orden en que aparecen.</p>
+    <div class="count-line"><span class="pill" id="pillP"></span><span class="help" style="margin:0">Se ve mejor con entre 8 y 14.</span>
+      <button class="link" id="clearP">Quitar todas</button></div>
+    <div class="grid" id="gridP"></div>
+  </section>
+
+  <section class="panel" id="razones">
+    <p class="help">Las cartas negras que se dan vuelta. La foto queda de fondo detrás del texto. Se ven mejor con frases cortas.</p>
+    <div id="listR"></div>
+    <button class="add" data-add="razones">+ Agregar razón</button>
+  </section>
+</main>
+
+<div class="bar"><div class="bar-in">
+  <button class="btn ghost" id="reset">Descartar cambios</button>
+  <span class="spacer"></span>
+  <button class="btn light" id="preview">👀 Ver cómo queda</button>
+  <button class="btn red" id="copy">Copiar para Claude</button>
+</div></div>
+
+<div class="modal" id="picker"><div class="sheet">
+  <div class="sheet-head"><h2>Elige una foto</h2><button data-close>×</button></div>
+  <div class="sheet-body"><div class="grid" id="gridPick"></div></div>
+</div></div>
+
+<div class="modal" id="copied"><div class="sheet">
+  <div class="sheet-head"><h2>Listo, copiado ✨</h2><button data-close>×</button></div>
+  <div class="sheet-body">
+    <p class="help">Pégalo en el chat con Claude y lo publico. Si no se copió solo, selecciona todo el texto de abajo y cópialo a mano.</p>
+    <textarea id="out" readonly></textarea>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="contenido.js"></script>
+<script>
+const KEY = "nacha-borrador";
+const ORIGINAL = JSON.parse(JSON.stringify(window.CONTENIDO));
+let D = load();
+const src = (n, t=true) => `fotos/${t?"t/":""}${FOTOS[n-1]}.jpg`;
+const esc = t => String(t??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = t => esc(t).replace(/\*(.+?)\*/g,"<em>$1</em>");
+
+function load(){ try{ const d = JSON.parse(localStorage.getItem(KEY)); if(d && d.historia) return d; }catch(e){} return JSON.parse(JSON.stringify(ORIGINAL)); }
+let saveT;
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(D));
+  const s = document.getElementById("saved"); s.textContent = "Guardado ✓";
+  clearTimeout(saveT); saveT = setTimeout(()=> s.textContent = "Los cambios se guardan solos en este navegador", 1500);
+  counts();
+}
+function counts(){
+  document.getElementById("cH").textContent = D.historia.length;
+  document.getElementById("cP").textContent = D.portada.length;
+  document.getElementById("cR").textContent = D.razones.length;
+  const p = document.getElementById("pillP"), n = D.portada.length;
+  p.textContent = n === 1 ? "1 foto elegida" : `${n} fotos elegidas`;
+  p.classList.toggle("warn", n < 3);
+}
+function toast(t){ const el = document.getElementById("toast"); el.textContent = t; el.classList.add("on"); setTimeout(()=>el.classList.remove("on"), 2200); }
+
+/* ---------- Pestañas ---------- */
+document.querySelectorAll(".tab").forEach(t=> t.addEventListener("click", ()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on", x===t));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on", p.id===t.dataset.tab));
+  document.querySelectorAll(".panel.on textarea").forEach(grow);
+  scrollTo({top:0});
+}));
+
+/* ---------- Listas (historia y razones) ---------- */
+const SPEC = {
+  historia: { el:"listH", blank:{foto:1, polaroid:"", titulo:"", frase:""}, fields:[
+    { k:"polaroid", label:"Polaroid", hint:"texto corto escrito bajo la foto", max:28 },
+    { k:"titulo",   label:"Título",   hint:"la palabra entre *asteriscos* sale en rojo", render:true },
+    { k:"frase",    label:"Frase",    area:true } ] },
+  razones:  { el:"listR", blank:{foto:1, texto:""}, fields:[
+    { k:"texto", label:"Razón", area:true } ] },
+};
+function grow(t){ t.style.height = "auto"; t.style.height = (t.scrollHeight + 2) + "px"; }
+function renderList(kind, flash){
+  const spec = SPEC[kind], box = document.getElementById(spec.el), arr = D[kind];
+  box.innerHTML = arr.map((it,i)=>`
+    <div class="item${flash===i?" flash":""}" data-i="${i}">
+      <div class="num">${i+1}</div>
+      <div class="thumb" data-pick="${i}"><img src="${src(it.foto)}" alt=""><span>foto ${it.foto} · cambiar</span></div>
+      <div class="fields">${spec.fields.map(f=>`
+        <div class="field"><label>${f.label}${f.hint?` <i>· ${f.hint}</i>`:""}</label>
+          ${f.area ? `<textarea data-k="${f.k}" rows="2">${esc(it[f.k])}</textarea>`
+                   : `<input data-k="${f.k}" value="${esc(it[f.k])}"${f.max?` maxlength="${f.max}"`:""}>`}
+          ${f.render?`<div class="render">${fmt(it[f.k])}</div>`:""}
+        </div>`).join("")}
+      </div>
+      <div class="tools">
+        <button data-move="-1" title="Subir" ${i===0?"disabled":""}>↑</button>
+        <button data-move="1" title="Bajar" ${i===arr.length-1?"disabled":""}>↓</button>
+        <button class="del" data-del title="Eliminar">✕</button>
+      </div>
+    </div>`).join("");
+  box.querySelectorAll("textarea").forEach(grow);
+  if(flash!==undefined) setTimeout(()=>box.querySelector(".flash")?.classList.remove("flash"), 700);
+}
+for(const kind of Object.keys(SPEC)){
+  const box = document.getElementById(SPEC[kind].el);
+  box.addEventListener("input", e=>{
+    const k = e.target.dataset.k; if(!k) return;
+    const i = +e.target.closest(".item").dataset.i; D[kind][i][k] = e.target.value;
+    if(e.target.tagName==="TEXTAREA") grow(e.target);
+    const r = e.target.parentElement.querySelector(".render"); if(r) r.innerHTML = fmt(e.target.value);
+    save();
+  });
+  box.addEventListener("click", e=>{
+    const item = e.target.closest(".item"); if(!item) return; const i = +item.dataset.i, arr = D[kind];
+    if(e.target.closest("[data-pick]")) return openPicker(arr[i].foto, n=>{ arr[i].foto = n; save(); renderList(kind, i); });
+    const mv = e.target.closest("[data-move]");
+    if(mv){ const j = i + +mv.dataset.move; [arr[i],arr[j]] = [arr[j],arr[i]]; save(); renderList(kind, j); return; }
+    if(e.target.closest("[data-del]")){
+      if(arr.length <= 1) return toast("Tiene que quedar al menos uno");
+      if(!confirm("¿Eliminar este " + (kind==="historia"?"momento":"texto") + "?")) return;
+      arr.splice(i,1); save(); renderList(kind);
+    }
+  });
+}
+document.querySelectorAll("[data-add]").forEach(b=> b.addEventListener("click", ()=>{
+  const kind = b.dataset.add;
+  openPicker(null, n=>{
+    D[kind].push({...SPEC[kind].blank, foto:n}); save(); renderList(kind, D[kind].length-1);
+    const last = document.getElementById(SPEC[kind].el).lastElementChild;
+    last.scrollIntoView({behavior:"smooth", block:"center"}); last.querySelector("input,textarea").focus({preventScroll:true});
+  });
+}));
+
+/* ---------- Portada ---------- */
+const gridP = document.getElementById("gridP");
+function renderPortada(){
+  gridP.innerHTML = FOTOS.map((_,k)=>{ const n = k+1, o = D.portada.indexOf(n);
+    return `<div class="pick${o>=0?" sel":""}" data-n="${n}"><img src="${src(n)}" alt="" loading="lazy"><span class="n">${n}</span><span class="order">${o>=0?o+1:""}</span></div>`; }).join("");
+  gridP.classList.toggle("has", D.portada.length > 0);
+}
+gridP.addEventListener("click", e=>{
+  const p = e.target.closest(".pick"); if(!p) return; const n = +p.dataset.n, o = D.portada.indexOf(n);
+  if(o >= 0) D.portada.splice(o,1); else D.portada.push(n);
+  save(); renderPortada();
+});
+document.getElementById("clearP").addEventListener("click", ()=>{ if(confirm("¿Quitar todas las fotos de la portada?")){ D.portada = []; save(); renderPortada(); } });
+
+/* ---------- Selector de foto ---------- */
+const picker = document.getElementById("picker"), gridPick = document.getElementById("gridPick");
+let onPick = null;
+gridPick.innerHTML = FOTOS.map((_,k)=>`<div class="pick" data-n="${k+1}"><img src="${src(k+1)}" alt="" loading="lazy"><span class="n">${k+1}</span></div>`).join("");
+function openPicker(cur, cb){
+  onPick = cb;
+  gridPick.querySelectorAll(".pick").forEach(p=>p.classList.toggle("cur", +p.dataset.n===cur));
+  picker.classList.add("on"); document.body.style.overflow = "hidden";
+}
+gridPick.addEventListener("click", e=>{ const p = e.target.closest(".pick"); if(!p) return; closeModals(); onPick && onPick(+p.dataset.n); });
+function closeModals(){ document.querySelectorAll(".modal").forEach(m=>m.classList.remove("on")); document.body.style.overflow = ""; }
+document.querySelectorAll(".modal").forEach(m=> m.addEventListener("click", e=>{ if(e.target===m || e.target.closest("[data-close]")) closeModals(); }));
+addEventListener("keydown", e=>{ if(e.key==="Escape") closeModals(); });
+
+/* ---------- Acciones ---------- */
+function clean(){ // quita espacios sobrantes y momentos vacíos
+  const t = s => String(s??"").trim();
+  return {
+    historia: D.historia.map(m=>({foto:m.foto, polaroid:t(m.polaroid), titulo:t(m.titulo), frase:t(m.frase)})).filter(m=>m.titulo||m.frase||m.polaroid),
+    portada: D.portada.slice(),
+    razones: D.razones.map(r=>({foto:r.foto, texto:t(r.texto)})).filter(r=>r.texto),
+  };
+}
+document.getElementById("preview").addEventListener("click", ()=>{
+  if(D.portada.length < 3) return toast("Elige al menos 3 fotos para la portada");
+  localStorage.setItem(KEY, JSON.stringify(D));
+  open("index.html?borrador", "_blank");
+});
+document.getElementById("copy").addEventListener("click", async ()=>{
+  if(D.portada.length < 3) return toast("Elige al menos 3 fotos para la portada");
+  const txt = "Cambios para la página de Nacha:\n\nwindow.CONTENIDO = " + JSON.stringify(clean(), null, 2) + ";";
+  document.getElementById("out").value = txt;
+  try{ await navigator.clipboard.writeText(txt); }catch(e){}
+  document.getElementById("copied").classList.add("on"); document.body.style.overflow = "hidden";
+  const o = document.getElementById("out"); o.focus(); o.select();
+});
+document.getElementById("reset").addEventListener("click", ()=>{
+  if(!confirm("¿Descartar todos tus cambios y volver a lo que está publicado?")) return;
+  localStorage.removeItem(KEY); D = JSON.parse(JSON.stringify(ORIGINAL)); renderAll(); counts(); toast("Volviste a la versión publicada");
+});
+
+function renderAll(){ renderList("historia"); renderList("razones"); renderPortada(); }
+renderAll(); counts();
+</script>
+</body>
+</html>

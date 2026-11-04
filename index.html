@@ -167,6 +167,9 @@
   .present-text p + p{margin-top:8px}
   .present-text .sig{font-family:var(--hand);font-size:32px;margin-top:12px}
 
+  .preview-bar{position:fixed;top:0;left:0;right:0;z-index:80;background:var(--blue);color:#fff;font:500 13px var(--sans);text-align:center;padding:8px}
+  .preview-bar a{color:#fff}
+
   /* ---------- Lightbox ---------- */
   #lb{position:fixed;inset:0;z-index:70;background:rgba(13,9,7,.92);display:flex;align-items:center;justify-content:center;padding:4vw;opacity:0;pointer-events:none;transition:opacity .3s}
   #lb.on{opacity:1;pointer-events:auto}
@@ -319,38 +322,20 @@
 
 <div id="lb"><img alt=""><button class="lb-btn prev" aria-label="Anterior">‹</button><button class="lb-btn next" aria-label="Siguiente">›</button><div class="lb-n"></div></div>
 
+<script src="contenido.js"></script>
 <script>
-/* ============ Contenido (edita aquí) ============ */
-// Historia: la pila de polaroids (en orden)
-const PHOTOS = [
-  { src:"fotos/n05.jpg",    tag:"nosotros",        place:"Tú <em>y</em> yo",               line:"Mi foto favorita del mundo es cualquiera en la que salgas tú." },
-  { src:"fotos/fiesta.jpg", tag:"¡hola!",          place:"Entre la <em>multitud</em>",     line:"Puede haber mil personas: siempre te encuentro a ti." },
-  { src:"fotos/n25.jpg",    tag:"Praia do Amor",   place:"La Praia do <em>Amor</em>",      line:"Hasta el letrero sabía lo que estaba pasando." },
-  { src:"fotos/nieve.jpg",  tag:"la cordillera",   place:"Arriba en la <em>nieve</em>",    line:"Las mejores vistas… y no hablo de las montañas." },
-  { src:"fotos/n15.jpg",    tag:"modo ochentero",  place:"Versión <em>ochentera</em>",     line:"Tú con ese chaleco, yo con esa chaqueta: icónicos." },
-  { src:"fotos/n14.jpg",    tag:"¡una lagartija!", place:"Tu lado <em>aventurero</em>",    line:"La única persona que conozco que celebra así encontrar una lagartija." },
-  { src:"fotos/gaudi.jpg",  tag:"Barcelona",       place:"Bajo los arcos de <em>Gaudí</em>", line:"Explorar el mundo es mejor de tu mano.", pos:"38% 50%" },
-  { src:"fotos/templo.jpg", tag:"Japón",           place:"Tú, <em>diva</em> en Japón",     line:"Tú posando como estrella, yo sudando como turista." },
-  { src:"fotos/n07.jpg",    tag:"un beso",         place:"Un beso junto al <em>canal</em>", line:"De esas cosas que no se planean y se recuerdan para siempre." },
-  { src:"fotos/n32.jpg",    tag:"entre montañas",  place:"Entre <em>montañas</em>",        line:"Una cerveza, sol y tú: la cumbre perfecta." },
-  { src:"fotos/n29.jpg",    tag:"de gala",         place:"De <em>gala</em>",               line:"Tú con ese vestido. No tengo más comentarios." },
-  { src:"fotos/n27.jpg",    tag:"disfrazados",     place:"Y también <em>disfrazados</em>", line:"Contigo hasta el carrete más raro es el mejor plan." },
-  { src:"fotos/n19.jpg",    tag:"atardecer",       place:"Cuando se pone el <em>sol</em>", line:"Los atardeceres son más lindos si los veo contigo." },
-  { src:"fotos/kimono.jpg", tag:"ceremonia del té", place:"Y un poco de <em>calma</em>",   line:"Hasta en silencio, contigo todo se siente en su lugar." },
-];
-// Carrusel 3D de la portada
-const RING = ["kimono","espejo","n25","n15","n19","n22","n11","n17","n08","n21","n29","n03"].map(n=>`fotos/t/${n}.jpg`);
-// Muro: todas las fotos
-const ALL = ["espejo","fiesta","nieve","bici","gaudi","templo","kimono","amiga","cabana",
-  ...Array.from({length:34},(_,i)=>"n"+String(i+1).padStart(2,"0"))];
-const REASONS = [
-  { n:"1", text:"Tu risa, que se te sale con toda la cara.", img:"fotos/t/nieve.jpg" },
-  { n:"2", text:"Que te atreves a todo: nieve, bici, kimono, lagartijas.", img:"fotos/t/n14.jpg" },
-  { n:"3", text:"Tu estilo, hasta en un templo con 35 grados.", img:"fotos/t/templo.jpg" },
-  { n:"4", text:"Que conviertes cualquier viaje en una aventura.", img:"fotos/t/n25.jpg" },
-  { n:"5", text:"Que te disfrazas conmigo sin preguntar mucho.", img:"fotos/t/n27.jpg" },
-  { n:"6", text:"Que una comida en la casa contigo ya es una cita.", img:"fotos/t/n28.jpg" },
-];
+/* ============ Contenido (viene de contenido.js; se edita en editor.html) ============ */
+const PREVIEW = /[?&]borrador/.test(location.search);
+let C = window.CONTENIDO;
+if(PREVIEW){ try{ const d = JSON.parse(localStorage.getItem("nacha-borrador")); if(d) C = d; }catch(e){} }
+const esc = t => String(t??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const foto = (n, thumb) => `fotos/${thumb?"t/":""}${FOTOS[n-1] || FOTOS[0]}.jpg`;
+const POS = { gaudi:"38% 50%" };
+const PHOTOS = C.historia.map(m=>({ src:foto(m.foto), pos:POS[FOTOS[m.foto-1]], tag:esc(m.polaroid),
+  place:esc(m.titulo).replace(/\*(.+?)\*/g,"<em>$1</em>"), line:m.frase }));
+const RING = (C.portada.length >= 3 ? C.portada : [1,2,3]).map(n=>foto(n,true));
+const ALL = FOTOS;
+const REASONS = C.razones.map((r,i)=>({ n:String(i+1), text:esc(r.texto), img:foto(r.foto,true) }));
 
 /* ============ Confetti ============ */
 const cv = document.getElementById("confetti"), cx = cv.getContext("2d");
@@ -569,6 +554,13 @@ document.getElementById("again").addEventListener("click", ()=>{
   document.getElementById("meter").classList.remove("on");
   scrollTo({top:0,behavior:"instant"});
 });
+
+if(PREVIEW){
+  blow();
+  const b = document.createElement("div"); b.className = "preview-bar";
+  b.innerHTML = 'Vista previa del borrador · <a href="editor.html">volver al editor</a>';
+  document.body.appendChild(b);
+}
 
 /* ============ Lightbox ============ */
 const lb = document.getElementById("lb"), lbImg = lb.querySelector("img");
